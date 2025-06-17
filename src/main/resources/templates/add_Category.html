@@ -1,0 +1,155 @@
+<!doctype html>
+<html layout:decorate="~{shared/layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./css/style.css">
+    <title>Add Category</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container category-form mt-4">
+        <div class="form-title h4">Category Details</div>
+        <form>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="isParent">
+                <label class="form-check-label" for="isParent">Is this Parent Category?</label>
+            </div>
+
+            <div class="col-md-12 mb-3" id="categorySelect">
+                <label class="form-label">Parent Category</label>
+                <select class="form-control">
+                    <!--
+                     <option>Fruits</option>
+                     <option>Cloths</option>
+                     <option>Cosmetics</option>-->
+                </select>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label for="category" class="form-label">Category</label>
+                    <input type="text" class="form-control" id="category" placeholder="Category Name">
+                </div>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="submit  btn btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
+
+
+<script defer>
+    $(document).ready(function () {
+        //toastr.success('Welcome to this page');
+        getAllCategory();
+
+
+        $("#isParent").on("change", function () {
+            if ($(this).is(":checked")) {
+                $("#categorySelect").hide();
+            } else {
+                $("#categorySelect").show();
+            }
+        });
+
+        $(".submit").click(function (event) {
+            event.preventDefault();
+
+            let validationOK = submitCategoryValidation();
+
+            if (validationOK) {
+                let requestBody=  {
+                    "categoryName": null,
+                    "parentId": null
+                }
+                let isParent = $("#isParent").is(":checked");
+                let category = $("#category").val();
+                let categorySelected = $("#categorySelect select :selected").val();
+                if (isParent) {
+                    requestBody.isParent = null;
+                    requestBody.categoryName = category;
+                } else {
+                    requestBody.categoryName = category;
+                    requestBody.parentId=categorySelected;
+                    //requestBody.parentId = null;
+                }
+                Ajax.post("/Categories/create", requestBody, null, true)
+                    .then(response => {
+                        console.log(response);
+                       showSuccessToast(response.message);
+                        getAllCategory();
+                    }).catch(error=>{
+                    console.log(error)
+                    showErrorToast("Error:",error.message);
+                })
+
+            };
+        });
+    });
+
+    function submitCategoryValidation() {
+        let isParent = $("#isParent").is(":checked");
+        let category = $("#category").val();
+        let categorySelected = $("#categorySelect select").val();
+
+        if (category === undefined || category === '' || category.trim() === '') {
+            toastr.error("Category Name is required.")
+            return false;
+        }
+        if (!isParent) {
+            if (!categorySelected || categorySelected === 'Select') {
+                toastr.error(" Parent Category is required.");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function getAllCategory(){
+
+        Ajax.get("/Categories/getAll",null,null)
+            .then(response=>{
+                console.log(response);
+                //toastr.success(response.message);
+                $("#categorySelect select").empty() //empty kore new gulo add korchi
+                $("#categorySelect select").append(`<option selected>Select</option>`)
+                if ( response.content==null){
+
+                }else{
+                    response.content.forEach(current=>{
+                        $("#categorySelect select").append(`
+                    <option value="` + current.id + `">` + current.categoryName + `</option>
+                `);
+                    })
+                }
+
+            }).catch(error=>{
+            console.log(error);
+            showErrorToast("error:" +error);
+        })
+
+       /* $.ajax(settings).done(function (response) {
+            console.log(response);
+            //toastr.success(response.message);
+            console.log(response);
+            $("#categorySelect select").empty();
+            $("#categorySelect select").append(`<option selected>Select</option>`)
+            response.content.forEach(current=>{
+                $("#categorySelect select").append(`
+                    <option value="` + current.id + `">` + current.name + `</option>
+                `);
+            })
+
+        });*/
+    }
+
+</script>
