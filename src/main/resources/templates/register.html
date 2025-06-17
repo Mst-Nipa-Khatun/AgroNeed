@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <title>Register</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+</head>
+
+<body class="register-page bg-body-secondary">
+
+<!--INSERT ANOTHER PAGE TO THIS PAGE FOR SHARED GLOBAL HTML CSS JS-->
+<th:block th:replace="~{shared/style :: style}"></th:block>
+<th:block th:replace="~{shared/script :: scripts}"></th:block>
+
+
+<div class="register-box">
+    <div class="register-logo">
+        <a href="../index2.html"><b>Admin</b>LTE</a>
+    </div>
+    <div class="card">
+        <div class="card-body register-card-body">
+            <p class="register-box-msg">Register a new membership</p>
+            <form>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="username" placeholder="User Name"/>
+                    <div class="input-group-text"><span class="bi bi-person"></span></div>
+                </div>
+                <div class="input-group mb-3">
+                    <input type="number" class="form-control" id="phone" placeholder="Phone"/>
+                    <div class="input-group-text"><span class="bi bi-envelope"></span></div>
+                </div>
+                <div class="input-group mb-3">
+                    <input type="password" class="form-control" id="password" placeholder="Password"/>
+                    <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
+                </div>
+                <div class="row">
+                    <div class="col-8">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/>
+                            <label class="form-check-label" for="flexCheckDefault">
+                                I agree to the <a href="#">terms</a>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="d-grid gap-2">
+                            <button class="signIn btn btn-primary">Register</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <p class="mb-0">
+                <a href="login.html" class="text-center"> I already have a membership </a>
+            </p>
+        </div>
+    </div>
+</div>
+<form id="loginPage" action="/login" method="get">
+
+</form>
+
+</body>
+</html>
+
+<script defer type="application/javascript">
+    $(document).ready(function () {
+
+        $(".signIn").click(function (event) {
+            event.preventDefault();
+            signInValiadationAndCallAPI();
+        })
+    });
+
+    function signInValiadationAndCallAPI() {
+        let username = $("#username").val();
+        let phone = $("#phone").val();
+        let password = $("#password").val();
+        if (username === '' || username === undefined || username.trim() === '') {
+            showErrorToast("UserName is required");
+            return false;
+        }
+        if (phone === '' || phone === undefined || phone.trim() === '') {
+            showErrorToast("PhoneNumber is required");
+            return false;
+        }
+        if (password === '' || password === undefined || password.trim() === '') {
+            showErrorToast("Password is required");
+            return false;
+        }
+
+        let requestBody = {
+            "username": username,
+            "phone": phone,
+            "password": password
+
+        }
+
+        $.ajax({
+            url: STRINGS.API_BASE_URL + "/users/create",
+            type: "POST",
+            data: requestBody ? JSON.stringify(requestBody) : null,
+            contentType: "application/json",
+            dataType: "json",
+            //headers: { Authorization: `Bearer ${token}` },
+            xhrFields: { withCredentials: true },
+            success: function (response) {
+                console.log(response);
+
+                if (response.statusCode === 201) {
+                    showSuccessToast(response.message);
+                    //After successful registration wait 2 sec for show success message then move to login page
+                    setTimeout(function () {
+                        $("#loginPage").submit();
+                    }, 2000)
+                } else {
+                    showWarningToast(response.message)
+                }
+            },
+            error: function (error) {
+                console.log(error);
+                showErrorToast("Error:" + error.message);
+            }
+        });
+
+
+    }
+
+
+</script>
