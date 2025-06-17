@@ -1,0 +1,116 @@
+<th:block th:fragment="scripts">
+<th:block th:replace="~{shared/ajaxScript :: ajaxscripts}"></th:block>
+<!--CUSTOM COMMON JS FILE-->
+<script>
+
+    window.isEmpty = function (value) {
+        if (value == null || value === '') return true;
+        if (Array.isArray(value) && value.length === 0) return true;
+        if (typeof value === 'object' && Object.keys(value).length === 0) return true;
+        return false;
+    }
+
+
+    window.showWarningToast = function (message, title = '') {
+        toastr.warning(message, title);
+    }
+
+    window.showSuccessToast = function (message, title = '') {
+        toastr.success(message, title);
+    }
+
+    window.showErrorToast = function (message, title = '') {
+        toastr.error(message, title);
+    }
+
+    window.showInfoToast = function (message, title = '') {
+        toastr.info(message, title);
+    }
+
+
+    window.showWarningToast = function (message, title = '', options = {}) {
+        toastr.warning(message, title, options);
+    }
+
+    window.showSuccessToast = function (message, title = '', options = {}) {
+        toastr.success(message, title, options);
+    }
+
+    window.showErrorToast = function (message, title = '', options = {}) {
+        toastr.error(message, title, options);
+    }
+
+    window.showInfoToast = function (message, title = '', options = {}) {
+        toastr.info(message, title, options);
+    }
+
+
+    //############################################################ LOCAL STORAGE #######################################################################
+
+    // Utility functions to handle credentials
+    window.saveCredential = function (value) {
+        try {
+            localStorage.setItem("credential", typeof value === "object" ? JSON.stringify(value) : value);
+        } catch (e) {
+            console.error("Error saving to localStorage", e);
+        }
+    };
+
+    window.getCredential = function () {
+        try {
+            const value = localStorage.getItem("credential");
+            return value ? JSON.parse(value) : null;
+        } catch (e) {
+            console.error("Error parsing JSON from localStorage", e);
+            return null;
+        }
+    };
+
+    window.clearCredential = function () {
+        try {
+            localStorage.removeItem("credential");
+        } catch (e) {
+            console.error("Error clearing credentials from localStorage", e);
+        }
+    };
+
+</script>
+
+<!-- jQuery -->
+<script defer src="/webjars/AdminLTE/3.2.0/plugins/jquery/jquery.min.js"></script>
+<!-- jQuery UI 1.11.4 -->
+<script defer src="/webjars/AdminLTE/3.2.0/plugins/jquery-ui/jquery-ui.min.js"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<!--<script defer>-->
+<!--    $.widget.bridge('uibutton', $.ui.button)-->
+<!--</script>-->
+
+<!-- Bootstrap 4 -->
+<script defer src="/webjars/AdminLTE/3.2.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- ChartJS -->
+<script defer src="/webjars/AdminLTE/3.2.0/plugins/chart.js/Chart.min.js"></script>
+<!-- Sparkline -->
+<script defer src="/webjars/AdminLTE/3.2.0/plugins/sparklines/sparkline.js"></script>
+<!-- JQVMap -->
+<script defer src="/webjars/AdminLTE/3.2.0/plugins/jqvmap/jquery.vmap.min.js"></script>
+<script defer src="/webjars/AdminLTE/3.2.0/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
+<!-- jQuery Knob Chart -->
+<script defer src="/webjars/AdminLTE/3.2.0/plugins/jquery-knob/jquery.knob.min.js"></script>
+<!-- daterangepicker -->
+<script defer src="/webjars/AdminLTE/3.2.0/plugins/moment/moment.min.js"></script>
+<script defer src="/webjars/AdminLTE/3.2.0/plugins/daterangepicker/daterangepicker.js"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script defer src="/webjars/AdminLTE/3.2.0/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<!-- Summernote -->
+<script defer src="/webjars/AdminLTE/3.2.0/plugins/summernote/summernote-bs4.min.js"></script>
+<!-- overlayScrollbars -->
+<script defer src="/webjars/AdminLTE/3.2.0/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<!-- AdminLTE App -->
+<script defer src="/webjars/AdminLTE/3.2.0/dist/js/adminlte.js"></script>
+<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+<script defer src="/webjars/AdminLTE/3.2.0/dist/js/pages/dashboard.js"></script>
+<!-- AdminLTE for demo purposes -->
+<!--<script defer src="/webjars/AdminLTE/3.2.0/dist/js/demo.js"></script>-->
+<script defer src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+
+</th:block>
