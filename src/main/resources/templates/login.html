@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <title>Login Page</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+</head>
+<body class="hold-transition login-page">
+
+<!--INSERT ANOTHER PAGE TO THIS PAGE FOR SHARED GLOBAL HTML CSS JS-->
+<th:block th:replace="~{shared/style :: style}"></th:block>
+<th:block th:replace="~{shared/script :: scripts}"></th:block>
+
+<div class="login-box">
+    <div class="login-logo">
+        <a href="../../index2.html"><b>Admin</b>LTE 3</a>
+    </div>
+    <!-- /.login-logo -->
+    <div class="card">
+        <div class="card-body login-card-body">
+            <p class="login-box-msg" th:if="${param.error}">
+                User/password is invalid.
+            </p>
+            <p class="login-box-msg" th:if="${param.logout}">
+                You have been logged out.
+            </p>
+
+            <p class="login-box-msg">Sign in to start your session</p>
+
+            <form method="post">
+                <div class="input-group mb-3">
+                    <input class="form-control" name="phone" id="phone" placeholder="phone" type="number">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-phone"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <input class="form-control" name="password" id="password" placeholder="Password" type="password">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-8">
+                        <div class="icheck-primary">
+                            <input id="remember" type="checkbox">
+                            <label for="remember">
+                                Remember Me
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <button class="signIn btn btn-primary btn-block" type="">Sign In</button>
+                    </div>
+                </div>
+            </form>
+
+
+            <p class="mb-1">
+                <a href="javascript:void(0)">I forgot my password</a>
+            </p>
+            <p class="mb-0">
+                <a class="text-center" href="/register">Register a new membership</a>
+            </p>
+        </div>
+    </div>
+</div>
+<form id="dashBoardPage" action="/pages/dashboard" method="get">
+
+</form>
+
+</body>
+</html>
+<script defer type="application/javascript">
+    $(document).ready(function () {
+
+        $(".signIn").click(function (event){
+            event.preventDefault();
+            signInCallAPI()
+        })
+
+    });
+
+    function signInCallAPI() {
+        let phone = $("#phone").val();
+        let password = $("#password").val();
+        let requestBody = {
+            "phone": phone,
+            "password": password
+        }
+
+        $.ajax({
+            url: STRINGS.API_BASE_URL + "/login",
+            type: "POST",
+            data: requestBody ? JSON.stringify(requestBody) : null,
+            contentType: "application/json",
+            dataType: "json",
+            //headers: { Authorization: `Bearer ${token}` },
+            xhrFields: { withCredentials: true },
+            success: function (response) {
+                console.log(response)
+                if(response.statusCode===200){
+                    showSuccessToast(response.message);
+                    saveCredential(response)
+                    setTimeout(function (){
+                        $("#dashBoardPage").submit();
+                    },1000)
+                }else {
+                    showWarningToast(response.message);
+                }
+            },
+            error: function (error) {
+                console.log(error.message);
+                showErrorToast("Error:"+error);
+            }
+        });
+
+    }
+
+
+</script>
