@@ -1,0 +1,139 @@
+<th:block th:fragment="ajaxscripts">
+    <script>
+        window.STRINGS = {
+            API_BASE_URL: "http://localhost:8082"
+        };
+
+        //################################################# AJAX START ##########################################################################################
+
+        window.Ajax = {
+            jsonRequest: function (method, endpoint, data = null, headers = {},isTokenValidationRequired) {
+                return new Promise((resolve, reject) => {
+                    if (!(isTokenValidationRequired === true)) {
+                        this.performAjax(method, endpoint, data, headers, null)
+                            .then(resolve)
+                            .catch(reject);
+                    } else {
+
+                        let credential = window.getCredential();
+
+                        // Step 1: Check if credentials exist
+                        if (!credential || !credential.content.token) {
+                            console.warn("No credentials found, redirecting to login...");
+                            this.handleInvalidSession();
+                            return reject({ message: "No credentials found" });
+                        }
+
+                        // Step 2: Validate token before making request
+                        this.validateToken(credential.content.token).then(() => {
+                            // Step 3: If token is valid, proceed with actual API request
+                            this.performAjax(method, endpoint, data, headers, credential.content.token).then(resolve).catch(reject);
+                        }).catch(error => {
+                            console.log(error)
+                            console.warn("Token is invalid, redirecting to login...");
+                            this.handleInvalidSession();
+                            reject({ message: "Invalid token, redirected to login" });
+                        });
+                    }
+                });
+            },
+
+            performAjax: function (method, endpoint, data, headers, token) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: window.STRINGS.API_BASE_URL + endpoint,
+                        type: method,
+                        data: data ? JSON.stringify(data) : null,
+                        contentType: "application/json",
+                        dataType: "json",
+                        headers: { ...headers, Authorization: `Bearer ${token}` },
+                        xhrFields: { withCredentials: true },
+                        success: function (response) {
+                            console.log(response)
+                            resolve(response);
+                        },
+                        error: function (xhr, status, errorThrown) {
+                            console.error("AJAX Error:", status, errorThrown);
+                            console.error("Response Text:", xhr.responseText);
+
+                            let errorMessage = "An error occurred. Please try again.";
+
+                            // If responseJSON is available and has a message
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            // Try to parse responseText if responseJSON not available
+                            else if (xhr.responseText) {
+                                try {
+                                    const json = JSON.parse(xhr.responseText);
+                                    if (json.message) {
+                                        errorMessage = json.message;
+                                    }
+                                } catch (e) {
+                                    errorMessage = xhr.responseText;
+                                }
+                            }
+
+                            // Show or use the message
+                            showErrorToast(errorMessage); // or display somewhere in UI
+
+                            // Pass error object for further handling
+                            reject(xhr.responseJSON || { message: errorMessage });
+                        }
+
+
+                    });
+                });
+            },
+
+            validateToken: function (token) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: STRINGS.API_BASE_URL + "/validate-token",
+                        type: "GET",
+                        contentType: "application/json",
+                        dataType: "json",
+                        headers: {Authorization: `Bearer ${token}`},
+                        xhrFields: {withCredentials: true},
+                        success: function (response) {
+                            console.log(response)
+                            resolve();
+                        },
+                        error: function (error) {
+                            console.error("Error during validate token " + error)
+                            reject();
+                        }
+                    });
+                });
+            },
+
+            handleInvalidSession: function () {
+                console.warn("Session expired or invalid. Clearing credentials and redirecting to login.");
+                window.clearCredential(); // Remove stored credentials
+                window.location.href = "/login"; // Redirect to login page
+            },
+
+            get: function (endpoint, params = {}, headers = {},isTokenValidationRequired) {
+                let queryString = new URLSearchParams(params).toString();
+                return this.jsonRequest("GET", endpoint + (queryString ? `?${queryString}` : ""), null, headers,isTokenValidationRequired);
+            },
+
+            post: function (endpoint, data, headers = {},isTokenValidationRequired) {
+                return this.jsonRequest("POST", endpoint, data, headers,isTokenValidationRequired);
+            },
+
+            put: function (endpoint, data, headers = {}) {
+                return this.jsonRequest("PUT", endpoint, data, headers);
+            },
+
+            delete: function (endpoint, headers = {}) {
+                return this.jsonRequest("DELETE", endpoint, null, headers);
+            }
+        };
+
+        //############################################################ AJAX END ##########################################################################################
+
+
+    </script>
+
+</th:block>
