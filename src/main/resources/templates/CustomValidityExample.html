@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Validation with jQuery</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<form id="myForm">
+    <input type="text" id="username" placeholder="Enter username" required>
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+    $(document).ready(function(){
+        $("#username").on("input", function(){
+            if ($(this).val().trim() === "") {
+                this.setCustomValidity("Username cannot be empty!"); // Set custom error
+            } else if ($(this).val().trim().length < 3) {
+                this.setCustomValidity("Username must be at least 3 characters long!");
+            } else {
+                this.setCustomValidity(""); // Reset validity
+            }
+        });
+
+        $("#myForm").on("submit", function(event) {
+            if (!$("#username")[0].checkValidity()) {
+                event.preventDefault(); // Prevent form submission if invalid
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html layout:decorate="~{shared/layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+
+
+    <img height="80%" width="100%" th:src="@{/application-static-image/agroNeed_large_v2.png}">
+
+
+</div>
+
+<th:block layout:fragment="script">
+    <script>
+        console.log("Home Page");
+    </script>
+</th:block>
+
+</body>
+</html>
