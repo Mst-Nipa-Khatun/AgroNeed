@@ -1,0 +1,66 @@
+<!doctype html>
+<html layout:decorate="~{shared/layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>View All Products</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container category-form mt-4">
+        <div class="form-title h4">All Products</div>
+        <form>
+            <div id="productsList" class="row">
+           <!--  Products List added from API dynamically  -->
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
+<script>
+    $(document).ready(function () {
+        //toastr.success('Welcome to this page');
+        getAllProducts();
+
+    });
+
+    function getAllProducts() {
+
+        Ajax.get("/Products/getAll",null,null,true)
+            .then(response=>{
+                console.log(response);
+                if(response.content===null){
+
+                }else{
+                    response.content.forEach(current => {
+                        let productCard=`<div class="col-md-3">
+                    <div class="col">
+                        <div class="card h-100 shadow">
+                            <img height="200px" width="200px" src="`+current.imageUrl+`" class="card-img-top" alt="Product 1">
+                            <div class="card-body text-center">
+                                <h5 class="card-title name">`+current.name+`</h5><br>
+                                <p class="text-muted description">`+current.description+`</p>
+                                <p class="text-muted price">$`+current.price+`</p>
+                                <p class="text-muted stock">`+current.stock+`</p>
+                                <button class="btn btn-outline-dark w-100">Details</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`
+                        $("#productsList").append(productCard);
+                    });
+                }
+            }).catch(error=>{
+                console.log(error);
+                showErrorToast("Error:",+error);
+        })
+
+    }
+
+</script>
+
