@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html layout:decorate="~{shared/layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cart Info</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body class="bg-light">
+<div layout:fragment="content">
+    <div class="container py-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Cart Info</h4>
+            </div>
+            <div class="card-body">
+
+                <!-- Cart Table -->
+                <div class="table-responsive">
+                    <table class="cart-table align-middle table-striped">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Product Name</th>
+                            <th>Price</th>
+                            <th>Description</th>
+                            <th style="text-align: center">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="cart-body">
+
+                        <!-- Add more rows dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Delivery Address -->
+                <div class="mb-3">
+                    <label for="address" class="form-label">Delivery Address</label>
+                    <textarea type="text" class="form-control" id="address" placeholder="Enter your address"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <input type="text" class="form-control" id="phone" placeholder="Enter your Phone Number">
+                </div>
+
+                <!-- Payment Method -->
+                <div class="mb-3">
+                    <label class="form-label">Payment Method</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio"  name="payment" id="cod" value="1"
+                               checked>
+                        <label class="form-check-label" for="cod">
+                            Cash on Delivery
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="payment" id="bkash" value="2">
+                        <label class="form-check-label" for="bkash">
+                            Bkash
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Place Order Button -->
+                <div class="text-end">
+                    <button class="btn placeOrder btn-primary">Place Order</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<script defer>
+    $(document).ready(function () {
+        getAllShoppingCart();
+
+        $(document).on("click", ".incrementDecrementBtn", function () {
+            let productId = $(this).data("id");
+            let incrementDecrement = $(this).data("isincrement");
+
+            let credential = window.getCredential();
+
+
+            if (!credential || !credential.content || !credential.content.userId) {
+                console.warn("User not logged in — redirecting...");
+                window.location.href = "/login";
+                return;
+            }
+            let userId = credential.content.userId;
+            let requestBody = {
+                userId: userId,
+                productId: productId,
+                isIncrement: incrementDecrement
+            };
+            Ajax.post("/shoppingCart/incrementDecrement", requestBody, null, true)
+                .then(response => {
+                    if (response.statusCode !== 200) {
+                        showWarningToast(response.message);
+                        return;
+                    }
+                    getAllShoppingCart();
+                })
+                .catch(error => {
+                    console.log("Error adding to cart:", error);
+                    if (error.status === 401 || error.status === 403) {
+                        window.location.href = "/login";
+                    } else {
+                        showErrorToast("Error: " + error.message);
+                    }
+                });
+        });
+
+        $(document).on("click", ".crossbtn", function () {
+            let productId = $(this).data("id");
+            let $row = $(this).closest('tr');
+
+
+            let credential = window.getCredential();
+
+            if (!credential || !credential.content || !credential.content.userId) {
+                console.warn("User not logged in — redirecting...");
+                window.location.href = "/login";
+                return;
+            }
+            let userId = credential.content.userId;
+            let requestBody = {
+                userId: userId,
+                productId: productId
+            };
+            Ajax.post("/shoppingCart/removeRow", requestBody, null, true)
+                .then(response => {
+                    if (response.statusCode !== 200) {
+                        showWarningToast(response.message);
+                        return;
+                    }
+                    showShoppingCartCount();//For show product count in header icon
+
+
+                    $('.cart-table').DataTable().row($row).remove().draw(); // remove row from DataTable
+
+                    if ($.fn.DataTable.isDataTable('.cart-table')) {
+                        $('.cart-table').DataTable().destroy();
+                    }
+                    $('.cart-table').DataTable({
+                        // Default page length (how many rows shown initially)
+                        pageLength: 5,
+                        // Dropdown for selecting number of rows per page
+                        lengthMenu: [
+                            [5, 10, 25, 50, -1],       // Values
+                            [5, 10, 25, 50, 'All']     // Labels shown in dropdown
+                        ],
+                        columnDefs: [
+                            {
+                                targets: 0, // assuming first column is for row numbers
+                                render: function (data, type, row, meta) {
+                                    return meta.row + 1;
+                                }
+                            }
+                        ]
+                    });
+
+
+                    showSuccessToast("Product removed from cart");
+                })
+                .catch(error => {
+                    console.log("Error adding to cart:", error);
+                    if (error.status === 401 || error.status === 403) {
+                        window.location.href = "/login";
+                    } else {
+                        showErrorToast("Error: " + error.message);
+                    }
+                });
+        });
+
+        $(document).on("click", ".placeOrder", function () {
+            let credential = window.getCredential();
+
+            if (!credential || !credential.content || !credential.content.userId) {
+                console.warn("User not logged in — redirecting...");
+                window.location.href = "/login";
+                return;
+            }
+
+            let userId = credential.content.userId;
+            let address = $("#address").val();
+            let phoneNumber = $("#phone").val();
+            let paymentMethod = $('input[name="payment"]:checked').val();
+
+            if (!address || address.trim() === '') {
+                toastr.error("Address is required.");
+                return false;
+            }
+
+            if (!phoneNumber || phoneNumber.trim() === '') {
+                toastr.error("Phone Number is required.");
+                return false;
+            }
+
+            if (!paymentMethod) {
+                toastr.error("Payment Method is required.");
+                return false;
+            }
+
+            let requestBody = {
+                userId: userId,
+                address: address,
+                phoneNumber: phoneNumber,
+                paymentMethod: paymentMethod
+
+            };
+            Ajax.post("/orders/placeOrder", requestBody, null, true)
+                .then(response => {
+
+                    if(response.statusCode===200){
+                        console.log(response.message);
+
+                        showSuccessToast(response.message);
+                        setTimeout(function () {
+                            window.location.href = "/pages/success-order-conformation"
+                        }, 1000)
+                    }else {
+                        showWarningToast(response.message);
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                   showErrorToast("Error adding to cart:", +error);
+                });
+        });
+
+
+        function getAllShoppingCart() {
+            Ajax.get("/shoppingCart/getAll", null, null)
+                .then(response => {
+                    console.log(response);
+                    //showSuccessToast("Successfully get all")
+                    if ($.fn.DataTable.isDataTable('.cart-table')) {
+                        $('.cart-table').DataTable().destroy();
+                    }
+                    $("#cart-body").empty();
+
+                    if (response.content == null) {
+
+                    } else {
+                        response.content.forEach(current => {
+
+                            $("#cart-body").append(` <tr>
+                            <td>` + current.id + `</td>
+                            <td>` + current.name + `</td>
+                            <td>` + current.price + `</td>
+                            <td>` + current.description + `</td>
+                            <td>
+                            <div class="row">
+                            <div class="col-md-2">
+                             </div>
+                            <div class="col-md-2">
+                                 <button class="btn incrementDecrementBtn btn-sm btn-success me-1"
+                                        data-isincrement="true"
+                                        data-id="` + current.productId + `">+</button>
+                             </div>
+                             <div class="col-md-2">
+                                 <p>` + current.quantity + `</p>
+                             </div>
+                               <div class="col-md-2">
+                                <button class="btn incrementDecrementBtn btn-sm btn-danger"
+                                        data-isincrement="false"
+                                        data-id="` + current.productId + `">-</button>
+                             </div>
+                              <div class="col-md-2">
+
+                             </div>
+                              <div class="col-md-2">
+                                <button class="btn crossbtn btn-sm btn-secondary"
+                                        data-crossbtn="false" data-id="` + current.productId + `">x</button>
+                             </div>
+
+
+                             </div>
+
+                            </td>
+                        </tr>`);
+                        });
+                        $('.cart-table').DataTable({
+                            // Default page length (how many rows shown initially)
+                            pageLength: 5,
+                            // Dropdown for selecting number of rows per page
+                            lengthMenu: [
+                                [5, 10, 25, 50, -1],       // Values
+                                [5, 10, 25, 50, 'All']     // Labels shown in dropdown
+                            ],
+                            columnDefs: [
+                                {
+                                    targets: 0, // assuming first column is for row numbers
+                                    render: function (data, type, row, meta) {
+                                        return meta.row + 1;
+                                    }
+                                }
+                            ]
+                        });
+
+                    }
+
+                }).catch(error => {
+                console.log(error);
+                showErrorToast("Error " + error);
+            })
+        }
+
+
+        async function showShoppingCartCount() {
+            let shoppingCartCountSelection = $(".shoppingCartCount");
+
+            let credential = window.getCredential();
+            if (!credential || !credential.content || !credential.content.userId) {
+                console.warn("User not logged in — redirecting...");
+                shoppingCartCountSelection.text(0);
+                return;
+            }
+
+            Ajax.get("/shoppingCart/getAll", null, null)
+                .then(response => {
+                    console.log(response);
+                    if (response.content == null) {
+                        shoppingCartCountSelection.text(0)
+                    } else {
+                        let activeShoppingCartCount = response.content.length;
+                        shoppingCartCountSelection.text(activeShoppingCartCount)
+                    }
+
+                }).catch(error => {
+                shoppingCartCountSelection.text(0)
+                console.log(error);
+                showErrorToast("Error " + error);
+            })
+        }
+
+    });
+
+</script>
