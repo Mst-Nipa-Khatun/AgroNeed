@@ -1,0 +1,124 @@
+<!doctype html>
+<html layout:decorate="~{shared/layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>View All Products</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="container mt-4">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" th:if="${products != null}">
+            <div class="col" th:each="product : ${products}">
+                <div class="card h-100 border-0 text-center">
+                    <!-- Product Image -->
+                    <img th:src="${product.imageUrl}" alt="Product Image"
+                         class="card-img-top p-3"
+                         style="height: 200px; object-fit: contain;"/>
+
+
+                  <div class="card-body text-center p-2">
+                    <h3 th:text="${product.productName}" class="fw-normal text-dark mb-1"
+                        style="min-height: 50px;"></h3>
+                    <p th:text="${product.description}" class="text-danger fw-bold fs-5 mb-1"></p>
+                    <p th:text="'৳' + ${product.price}" class="text-muted small mb-1"></p>
+                    <p th:text="'Stock: ' + ${product.stock}" class="text-muted small"></p>
+                  </div>
+
+                  <!-- Add to Bag Button -->
+                    <div class="card-footer bg-transparent border-0 px-2 pb-3">
+                        <button class="btn w-100 add-to-cart-btn text-danger fw-semibold border" style="background-color: #fff;"
+                                th:attr="data-id=${product.productId}">
+                            <i class="bi bi-lightning-charge-fill me-1" ></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
+
+
+<script>
+    $(document).ready(function () {
+        $(".add-to-cart-btn").on("click", function () {
+            let productId = $(this).data("id");
+            let quantity = 1;
+
+            let credential = window.getCredential();
+
+            if (!credential || !credential.content || !credential.content.userId) {
+                console.warn("User not logged in — redirecting...");
+                window.location.href = "/login";
+                return;
+            }
+
+            let userId = credential.content.userId;
+
+            let requestBody = {
+                userId: userId,
+                productId: productId,
+                quantity: quantity
+            };
+
+            Ajax.post("/shoppingCart/create", requestBody, null, true)
+                .then(response => {
+                    if(response.statusCode===201){
+                        //showSuccessToast(response.message);
+                        showShoppingCartCount();//For show product count in header icon
+                    }else {
+                        showWarningToast(response.message);
+                    }
+
+                })
+                .catch(error => {
+                    console.log("Error adding to cart:", error);
+                    if (error.status === 401 || error.status === 403) {
+                        window.location.href = "/login";
+                    } else {
+                        showErrorToast("Error: " + error.message);
+                    }
+                });
+        });
+    });
+
+    function showShoppingCartCount() {
+        let shoppingCartCountSelection = $(".shoppingCartCount");
+
+        let credential = window.getCredential();
+        if (!credential || !credential.content || !credential.content.userId) {
+            console.warn("User not logged in — redirecting...");
+            shoppingCartCountSelection.text(0);
+            return;
+        }
+
+        Ajax.get("/shoppingCart/getAll", null, null)
+            .then(response => {
+                console.log(response);
+                if (response.content == null) {
+                    shoppingCartCountSelection.text(0)
+                } else {
+                    let activeShoppingCartCount = response.content.length;
+                    shoppingCartCountSelection.text(activeShoppingCartCount)
+                }
+
+            }).catch(error => {
+            shoppingCartCountSelection.text(0)
+            console.log(error);
+            showErrorToast("Error " + error);
+        })
+    }
+
+
+</script>
+
+
