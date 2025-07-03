@@ -62,6 +62,10 @@ public class ProductsServiceImpl implements ProductsService {
         Files.write(path, file.getBytes()); //automatic file e save kore dey
 
 
+        String savedImageUrl = "/images/" + fileName;
+
+//        return savedImageUrl;
+
         CategoriesEntity categories = categoriesRepository.findByIdAndStatus(selectedProductsDto.getSelectedCategoryId(), 1);
         if (categories == null) {
             return ResponseBuilder.getFailResponse(HttpStatus.BAD_REQUEST, null, "Categories Id not found");
@@ -83,7 +87,7 @@ public class ProductsServiceImpl implements ProductsService {
             products.setPrice(selectedProductsDto.getPrice());
             products.setStatus(1);
             products.setStock(selectedProductsDto.getStock());
-            products.setImageUrl("/images/" + fileName);
+            products.setImageUrl(savedImageUrl);
 
             ProductsEntity savedProducts = productsRepository.save(products);
 
