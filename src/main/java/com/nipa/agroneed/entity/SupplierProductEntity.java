@@ -1,8 +1,6 @@
 package com.nipa.agroneed.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 
@@ -10,11 +8,14 @@ import lombok.Data;
 @Entity
 @Table(name = "Supplier_Products")
 public class SupplierProductEntity extends BaseEntity{
-    @Column(name = "supplier_id")
-    private Long supplierId;
 
-    @Column(name = "product_id")
-    private Long productId;
+    @ManyToOne
+    @JoinColumn(name = "supplier_id", nullable = false)
+    private SupplierEntity supplier;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
+    private ProductsEntity product;
 
     @Column(name = "price")
     private Double price;
