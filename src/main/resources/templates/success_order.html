@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html layout:decorate="~{shared/layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Order Confirmation - AgroNeed</title>
+    <style>
+
+
+        .container {
+            background: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .logo span {
+            font-weight: bold;
+            font-family: 'Georgia', serif;
+            color: #4caf50;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #333;
+        }
+
+        p {
+            font-size: 16px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .icon {
+            font-size: 60px;
+            color: #4caf50;
+            margin-bottom: 10px;
+        }
+
+        .button {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 24px;
+            background: #4caf50;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .button:hover {
+            background: #43a047;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+<div layout:fragment="content">
+    <div class="container">
+        <div class="logo">🛒 <span>𝔸𝕘𝕣𝕠ℕ𝕖𝕖𝕕</span></div>
+        <div class="icon">✅</div>
+        <h1>Congratulations!</h1>
+        <p>You have successfully completed your order.</p>
+        <p>Thank you for shopping with us. A confirmation email has been sent to you including order details.</p>
+        <a class="button" href="/">Return to Home</a>
+    </div>
+</div>
+
+</body>
+</html>
+
+
