@@ -63,7 +63,9 @@ public class SecurityConfig {
                                 "/webjars/**", "/css/**", "/images/**", "/favicon.ico",
                                 "/favicon.png", "/shared/**", "/webjars/AdminLTE/**",
                                 "/Categories/getAll","/users/create","/shoppingCart","/shoppingCart/getAll",
-                                "/orders/placeOrder","/orders/getAll","/viewAllOrders","/orders/ordersUpdate","/application-static-image/**",
+                                "/orders/placeOrder","/orders/getAll","/viewAllOrders",
+                                "/orders/ordersUpdate","/application-static-image/**",
+                                "/suppliers/create","/suppliers/getAll",
                                 "/Products/create"//todo will need to authenticated dynamically
                         ).permitAll()
                         .anyRequest().authenticated()
