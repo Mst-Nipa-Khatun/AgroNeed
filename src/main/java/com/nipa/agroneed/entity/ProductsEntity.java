@@ -1,9 +1,9 @@
 package com.nipa.agroneed.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @Entity
@@ -27,6 +27,10 @@ public class ProductsEntity extends BaseEntity {
 
     @Column(name = "image_url")
     private String imageUrl;
+
+    // Relation with SupplierProducts
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SupplierProductEntity> supplierProducts;
 
 
 //    product_id INT PRIMARY KEY AUTO_INCREMENT,

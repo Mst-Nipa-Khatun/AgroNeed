@@ -40,4 +40,12 @@ public final class UrlConstraint {
         public static final String GET_ALL = "/getAll";
         public static final String UPADATE_ORDER = "/ordersUpdate";
     }
+
+    public static class Suppliers {
+        public static final String ROOT = "/suppliers";
+        public static final String CREATE = "/create";
+        public static final String GET_ALL = "/getAll";
+    }
+
+
     }
