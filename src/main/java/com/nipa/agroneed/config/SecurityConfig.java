@@ -65,8 +65,11 @@ public class SecurityConfig {
                                 "/Categories/getAll","/users/create","/shoppingCart","/shoppingCart/getAll",
                                 "/orders/placeOrder","/orders/getAll","/viewAllOrders",
                                 "/orders/ordersUpdate","/application-static-image/**",
-                                "/suppliers/create","/suppliers/getAll",
-                                "/Products/create"//todo will need to authenticated dynamically
+                                "/suppliers/create","/suppliers/getAll","/addSupplier",
+                                "/viewAllSupplier","/supplierAllProducts",
+                                "/Products/create","/addProducts",
+                                "/Products/getProductsBySupplierId/**"//todo will need to authenticated dynamically
+
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
