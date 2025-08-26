@@ -19,6 +19,8 @@ public final class UrlConstraint {
         public static final String ROOT = "/Products";
         public static final String CREATE = "/create";
         public static final String GET_ALL = "/getAll";
+        public static final String GET_PRODUCTS_BY_SUPPLIER_ID = "/getProductsBySupplierId";
+
 
     }
     public static class Users{
