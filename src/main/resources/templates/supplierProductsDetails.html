@@ -1,0 +1,86 @@
+<!doctype html>
+<html layout:decorate="~{shared/layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Supplier Products</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mt-5"
+         style="max-width: 1000px; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 12px 25px rgba(0,0,0,0.1);">
+        <h2 id="supplierTitle" style="color: #8e1717; text-align: center; margin-bottom: 30px; font-weight: bold;">
+            Products by Supplier
+        </h2>
+
+        <table id="productsTable" class="table table-striped table-bordered">
+            <thead style="background-color: #738fb8; color: white; font-weight: bold;">
+            <tr>
+                <th>#</th>
+                <th>Product Name</th>
+                <th>Description</th>
+                <th>Price</th>
+            </tr>
+            </thead>
+            <tbody id="products-body">
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
+
+<script defer>
+    $(document).ready(function () {
+        debugger
+        // get supplierId from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const supplierId = urlParams.get("supplierId");
+
+        if (supplierId) {
+            getProductsBySupplierId(supplierId);
+        }
+
+        function getProductsBySupplierId(supplierId) {
+            Ajax.get(`/Products/getProductsBySupplierId`, { supplierId: supplierId }, null)
+                .then(response => {
+                    console.log(response);
+
+                    if (response.content) {
+                        $("#products-body").empty();
+
+                        response.content.forEach((prod, index) => {
+                            $("#products-body").append(`
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${prod.productName}</td>
+                                    <td>${prod.description}</td>
+                                    <td>${prod.price}</td>
+                                </tr>
+                            `);
+                        });
+
+                        $('#productsTable').DataTable({
+                            pageLength: 5,
+                            // Dropdown for selecting number of rows per page
+                            lengthMenu: [5, 10, 25, 50, 'All']     // Labels shown in dropdown
+                        });
+                    } else {
+                        $("#products-body").append(`
+                            <tr>
+                                <td colspan="4" class="text-center text-danger">
+                                    No products found for this supplier
+                                </td>
+                            </tr>
+                        `);
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert("Error fetching products: " + error);
+                });
+        }
+    });
+</script>

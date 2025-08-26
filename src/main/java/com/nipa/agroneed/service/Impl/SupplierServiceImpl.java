@@ -43,6 +43,9 @@ public class SupplierServiceImpl implements SupplierService {
     public Response getAllSuppliers() {
         List<SupplierEntity> suppliers = supplierRepository.findAll();
         if (!suppliers.isEmpty()) {
+/*
+            SupplierProductEntity supplierProduct=supplierProductRepository.findByIdAndStatus
+*/
             return ResponseBuilder.getSuccessResponse(HttpStatus.OK, suppliers, "Supplier list");
         }
         return ResponseBuilder.getFailResponse(HttpStatus.NOT_FOUND, null, "Supplier not found");
