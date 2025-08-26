@@ -3,12 +3,12 @@ package com.nipa.agroneed.service.Impl;
 import com.nipa.agroneed.dto.Response;
 import com.nipa.agroneed.dto.SelectedProductsDto;
 import com.nipa.agroneed.dto.ViewProductsDetailsProjection;
-import com.nipa.agroneed.entity.CategoriesEntity;
-import com.nipa.agroneed.entity.ProductCategoriesEntity;
-import com.nipa.agroneed.entity.ProductsEntity;
+import com.nipa.agroneed.dto.ProductsbySupplierProjection;
+import com.nipa.agroneed.entity.*;
 import com.nipa.agroneed.repository.CategoriesRepository;
 import com.nipa.agroneed.repository.ProductsCategoriesRepository;
 import com.nipa.agroneed.repository.ProductsRepository;
+import com.nipa.agroneed.repository.SupplierRepository;
 import com.nipa.agroneed.service.ProductsService;
 import com.nipa.agroneed.utils.ResponseBuilder;
 import jakarta.transaction.Transactional;
@@ -22,28 +22,52 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductsServiceImpl implements ProductsService {
     private final ProductsRepository productsRepository;
     private final CategoriesRepository categoriesRepository;
     private final ProductsCategoriesRepository productsCategoriesRepository;
+    private final SupplierRepository supplierRepository;
 
 
     @Value("${file.upload-dir}")
     private String imageStoreLocation;
 
-    public ProductsServiceImpl(ProductsRepository productsRepository, CategoriesRepository categoriesRepository, ProductsCategoriesRepository productsCategoriesRepository) {
+    public ProductsServiceImpl(ProductsRepository productsRepository, CategoriesRepository categoriesRepository, ProductsCategoriesRepository productsCategoriesRepository, SupplierRepository supplierRepository) {
         this.productsRepository = productsRepository;
         this.categoriesRepository = categoriesRepository;
         this.productsCategoriesRepository = productsCategoriesRepository;
+        this.supplierRepository = supplierRepository;
     }
 
     @Transactional
     @Override
     public Response addProducts(MultipartFile file, SelectedProductsDto selectedProductsDto) throws IOException {
+        CategoriesEntity categories = categoriesRepository.findByIdAndStatus(selectedProductsDto.getSelectedCategoryId(), 1);
+        if (categories == null) {
+            return ResponseBuilder.getFailResponse(HttpStatus.BAD_REQUEST, null, "Categories Id not found");
+        }
+
+        List<CategoriesEntity> categoriesEntities =
+                categoriesRepository.findByParentIdAndStatus(selectedProductsDto.getSelectedCategoryId(), 1);
+
+        if (!categoriesEntities.isEmpty()) {
+            return ResponseBuilder.getFailResponse(HttpStatus.CONFLICT, null,
+                    "This selectedCategoryId have a sub category ,you don't add any products");
+
+        }
+
+        Optional<SupplierEntity> optionalSupplier = supplierRepository.findByIdAndStatus(selectedProductsDto.getSelectedSupplierId(), 1);
+        if (!optionalSupplier.isPresent()) {
+            return ResponseBuilder.getFailResponse(HttpStatus.BAD_REQUEST, null, "Invalid Supplier");
+        }
+
+        SupplierEntity supplier = optionalSupplier.get();
+
+
         String directoryPath = new File(imageStoreLocation).getAbsolutePath();
         File dir = new File(directoryPath); //system er file hisebe create holo
 
@@ -66,19 +90,7 @@ public class ProductsServiceImpl implements ProductsService {
 
 //        return savedImageUrl;
 
-        CategoriesEntity categories = categoriesRepository.findByIdAndStatus(selectedProductsDto.getSelectedCategoryId(), 1);
-        if (categories == null) {
-            return ResponseBuilder.getFailResponse(HttpStatus.BAD_REQUEST, null, "Categories Id not found");
-        }
 
-        List<CategoriesEntity> categoriesEntities =
-                categoriesRepository.findByParentIdAndStatus(selectedProductsDto.getSelectedCategoryId(), 1);
-
-        if (!categoriesEntities.isEmpty()) {
-            return ResponseBuilder.getFailResponse(HttpStatus.CONFLICT, null,
-                    "This selectedCategoryId have a sub category ,you don't add any products");
-
-        }
         ProductsEntity products = productsRepository.findByNameAndStatus(selectedProductsDto.getName(), 1);
         if (products == null) {
             products = new ProductsEntity();
@@ -98,10 +110,28 @@ public class ProductsServiceImpl implements ProductsService {
             productCategoriesEntity.setStatus(1);
             productsCategoriesRepository.save(productCategoriesEntity);
 
+            /*SUPPLIER*/
+            addSupplier(supplier, savedProducts);
+
             return ResponseBuilder.getSuccessResponse(HttpStatus.CREATED, null,
                     "Successfully added products");
         }
         return ResponseBuilder.getFailResponse(HttpStatus.BAD_REQUEST, null, "Product already exists");
+    }
+
+    private void addSupplier(SupplierEntity supplier, ProductsEntity savedProducts) {
+        List<SupplierProductEntity> supplierProducts = supplier.getSupplierProducts();
+
+        SupplierProductEntity supplierProductEntity = new SupplierProductEntity();
+        supplierProductEntity.setSupplier(supplier);
+        supplierProductEntity.setProduct(savedProducts);
+        supplierProductEntity.setPrice(savedProducts.getPrice());
+        supplierProductEntity.setStatus(1);
+
+        supplierProducts.add(supplierProductEntity);
+
+        supplier.setSupplierProducts(supplierProducts);
+        supplierRepository.save(supplier);
     }
 
     @Override
@@ -111,5 +141,14 @@ public class ProductsServiceImpl implements ProductsService {
             return ResponseBuilder.getSuccessResponse(HttpStatus.OK, productsList, "Successfully retrieved products");
         }
         return ResponseBuilder.getFailResponse(HttpStatus.BAD_REQUEST, null, "No products found");
+    }
+
+    @Override
+    public Response getProductsBySupplierId(Long supplierId) {
+        List<ProductsbySupplierProjection> products = productsRepository.findProductsBySupplierId(supplierId);
+        if (products.isEmpty()) {
+            return ResponseBuilder.getFailResponse(HttpStatus.BAD_REQUEST, null, "Not Products founds for this supplier");
+        }
+        return ResponseBuilder.getSuccessResponse(HttpStatus.OK, products, "Successfully retrieved products");
     }
 }

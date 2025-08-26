@@ -1,13 +1,14 @@
 package com.nipa.agroneed.repository;
 
 import com.nipa.agroneed.dto.ViewProductsDetailsProjection;
+import com.nipa.agroneed.dto.ProductsbySupplierProjection;
 import com.nipa.agroneed.entity.ProductsEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public interface ProductsRepository extends JpaRepository<ProductsEntity,Long> {
@@ -28,4 +29,17 @@ public interface ProductsRepository extends JpaRepository<ProductsEntity,Long> {
             "from products p\n" +
             "         join product_categories pc ON p.id = pc.product_id", nativeQuery = true)
     List<ViewProductsDetailsProjection> findByAllProducts();
+
+    @Query(value = """
+                        SELECT sp.id as supplierId,
+                               p.name as productName,
+                               p.description, 
+                               p.price
+                        FROM products p
+                        JOIN final_e_commerce.supplier_products sp
+                            ON p.id = sp.product_id
+                        WHERE sp.supplier_id = :supplier_id;
+                    """,nativeQuery = true)
+    List<ProductsbySupplierProjection> findProductsBySupplierId(@Param("supplier_id") Long supplier_id);
+
 }

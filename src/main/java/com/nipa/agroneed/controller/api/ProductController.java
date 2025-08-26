@@ -42,5 +42,9 @@ public class ProductController {
     public Response getAllProducts() {
         return productsService.getAllProducts();
     }
+    @GetMapping(UrlConstraint.Products.GET_PRODUCTS_BY_SUPPLIER_ID)
+    public Response getProductsBySupplierId(@RequestParam("supplierId") Long supplierId) {
+        return productsService.getProductsBySupplierId(supplierId);
+    }
 
 }
