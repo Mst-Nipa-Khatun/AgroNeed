@@ -6,6 +6,8 @@
     <meta charset="UTF-8">
     <title>Add Product</title>
     <link rel="stylesheet" href="./css/style.css">
+   <!-- <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/script.js}"></script>-->
 </head>
 <body>
 
@@ -13,6 +15,15 @@
     <div class="container category-form mt-4">
         <div class="form-title h4">Add Product</div>
         <form>
+            <div class="row mb-3">
+                <div class="col-md-6" id="supplierSelect">
+                    <label class="form-label">Supplier</label>
+                    <select class="form-control">
+                        <!-- Supplier list will be loaded dynamically -->
+                    </select>
+                </div>
+            </div>
+
             <div class="row mb-3">
                 <div class="col-md-6" id="categorySelect">
                     <label class="form-label">Category</label>
@@ -66,8 +77,8 @@
 
 <script defer>
     $(document).ready(function () {
-        //toastr.success('Welcome to this page');
         getAllCategory();
+        getAllSuppliers();
 
         $(".submit").click(function (event) {
             event.preventDefault();
@@ -75,6 +86,7 @@
             let validationOK = submitCategoryValidation();
             if (validationOK) {
                 let categorySelected = $("#categorySelect select").val();
+                let supplierSelected = $("#supplierSelect select").val();
                 let name = $("#name").val();
                 let description = $("#description").val();
                 let price = $("#price").val();
@@ -82,29 +94,30 @@
 
                 const image = document.getElementById('image');
                 const file = image.files[0];
-                let requestData = `{
-                    "selectedCategoryId": ` + categorySelected + `,
-                    "name": "` + name + `",
-                    "description": "` + description + `",
-                    "price": ` + price + ` ,
-                    "stock": ` + stock + `
-                }`;
 
-                var form = new FormData(); //application form data
+                let requestData = JSON.stringify({
+                    "selectedCategoryId": categorySelected,
+                    "selectedSupplierId": supplierSelected,
+                    "name": name,
+                    "description": description,
+                    "price": price,
+                    "stock": stock
+                });
+
+                var form = new FormData();
                 form.append("file", file);
                 form.append("data", requestData);
 
                 var settings = {
-                    "url": STRINGS.API_BASE_URL+"/Products/create",
+                    "url": STRINGS.API_BASE_URL + "/Products/create",
                     "method": "POST",
                     "timeout": 0,
                     "processData": false,
-                    "mimeType": "multipart/form-data",// Tell the server we provide multipart request
+                    "mimeType": "multipart/form-data",
                     "contentType": false,
-                    // Expect JSON response
                     "dataType": "json",
                     "headers": {
-                        "Accept": "application/json"  // Tell the server we expect JSON response
+                        "Accept": "application/json"
                     },
                     "data": form
                 };
@@ -113,29 +126,25 @@
                     console.log(response);
 
                     if (response.statusCode !== 201) {
-                        showWarningToast(response.message)
+                        showWarningToast(response.message);
                         return;
                     }
                     showSuccessToast(response.message);
 
                     setTimeout(function () {
                         window.location.reload();
-                    }, 1500)
+                    }, 1500);
 
-                    //location.reload();
                 }).fail(function (jqXHR, textStatus, errorThrown) {
                     console.error("AJAX Error:", textStatus, errorThrown);
                     console.error("Response Text:", jqXHR.responseText);
 
                     let errorMessage = "An error occurred. Please try again.";
-
-                    // Try to parse the error message if the response contains JSON
                     if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
                         errorMessage = jqXHR.responseJSON.message;
                     } else if (jqXHR.responseText) {
                         errorMessage = jqXHR.responseText;
                     }
-
                     showErrorToast(errorMessage);
                 });
             }
@@ -144,72 +153,84 @@
 
     function submitCategoryValidation() {
         let categorySelected = $("#categorySelect select").val();
+        let supplierSelected = $("#supplierSelect select").val();
         let name = $("#name").val();
         let description = $("#description").val();
         let price = $("#price").val();
         let stock = $("#stock").val();
 
-
         if (!categorySelected || categorySelected === 'Select') {
-            toastr.error("Categories is required.");
+            toastr.error("Category is required.");
+            return false;
+        }
+        if (!supplierSelected || supplierSelected === 'Select') {
+            toastr.error("Supplier is required.");
             return false;
         }
 
         const image = document.getElementById('image');
         const file = image.files[0];
 
-
         if (!file) {
             toastr.error("No file selected!");
-            return;
+            return false;
         }
-        const validTypes = ['image/jpeg', 'image/png', 'image/gif',"image/webp"];
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif', "image/webp"];
         if (!validTypes.includes(file.type)) {
             toastr.error("Invalid file type! Please select an image file.");
             return false;
         }
 
-        if (name === undefined || name === '' || name.trim() === '') {
-            toastr.error("Name is required.")
+        if (!name || name.trim() === '') {
+            toastr.error("Name is required.");
             return false;
         }
-        if (description === undefined || description === '' || description.trim() === '') {
-            toastr.error("Description is required.")
+        if (!description || description.trim() === '') {
+            toastr.error("Description is required.");
             return false;
         }
-        if (price === undefined || price === '' || price.trim() === '') {
-            toastr.error("Price is required.")
+        if (!price || price.trim() === '') {
+            toastr.error("Price is required.");
             return false;
         }
-        if (stock === undefined || stock === '' || stock.trim() === '') {
-            toastr.error("Stock is required.")
+        if (!stock || stock.trim() === '') {
+            toastr.error("Stock is required.");
             return false;
         }
         return true;
     }
 
     function getAllCategory() {
-
-        Ajax.get("/Categories/getAll",null,null)
-            .then(response=>{
-                console.log(response);
+        Ajax.get("/Categories/getAll", null, null)
+            .then(response => {
                 $("#categorySelect select").empty();
-                $("#categorySelect select").append(`<option selected>Select</option>`)
-                if ( response.content==null){
-
-                }else{
-                    response.content.forEach(current=>{
+                $("#categorySelect select").append(`<option selected>Select</option>`);
+                if (response.content) {
+                    response.content.forEach(current => {
                         $("#categorySelect select").append(`
-                    <option value="` + current.id + `">` + current.categoryName + `</option>
-                `);
-                    })
+                            <option value="${current.id}">${current.categoryName}</option>
+                        `);
+                    });
                 }
-
-            }).catch(error=>{
-                console.log(error);
-                showErrorToast("error:" +error);
-        })
-
+            }).catch(error => {
+            showErrorToast("Error loading categories: " + error);
+        });
     }
 
+    function getAllSuppliers() {
+        Ajax.get("/suppliers/getAll", null, null)
+            .then(response => {
+                $("#supplierSelect select").empty();
+                $("#supplierSelect select").append(`<option selected>Select</option>`);
+                if (response.content) {
+                    response.content.forEach(current => {
+                        $("#supplierSelect select").append(`
+                            <option value="${current.id}">${current.name}</option>
+                        `);
+                    });
+                }
+            }).catch(error => {
+            showErrorToast("Error loading suppliers: " + error);
+        });
+    }
 </script>
