@@ -67,7 +67,7 @@ public class SecurityConfig {
                                 "/orders/ordersUpdate","/application-static-image/**",
                                 "/suppliers/create","/suppliers/getAll","/addSupplier",
                                 "/viewAllSupplier","/supplierAllProducts",
-                                "/Products/create","/addProducts",
+                                "/Products/create","/addProducts","/users","/users/getAll",
                                 "/Products/getProductsBySupplierId/**"//todo will need to authenticated dynamically
 
                         ).permitAll()

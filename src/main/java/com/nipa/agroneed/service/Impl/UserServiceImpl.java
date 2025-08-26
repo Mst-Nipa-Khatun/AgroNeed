@@ -61,4 +61,14 @@ public class UserServiceImpl implements UserService {
         return ResponseBuilder.getSuccessResponse(HttpStatus.CREATED, savedUser,
                 "User registered successfully");
     }
+
+    @Override
+    public Response getAllUsers() {
+        List<User> user=userRepository.findAll();
+        if(!user.isEmpty()){
+            return ResponseBuilder.getSuccessResponse(HttpStatus.OK,null,"Users found");
+
+        }
+        return ResponseBuilder.getFailResponse(HttpStatus.BAD_REQUEST,null,"User not found");
+    }
 }

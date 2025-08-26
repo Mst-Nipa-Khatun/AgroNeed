@@ -5,4 +5,5 @@ import com.nipa.agroneed.dto.UserDto;
 
 public interface UserService {
     Response userRegister(UserDto userDto);
+    Response getAllUsers();
 }
