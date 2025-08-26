@@ -164,3 +164,32 @@ CREATE TABLE Reviews (
                          FOREIGN KEY (product_id) REFERENCES Products(id) ON DELETE CASCADE
 );
 
+CREATE TABLE Suppliers
+(
+    id        INT AUTO_INCREMENT PRIMARY KEY,
+    name      VARCHAR(255) NOT NULL,
+    email     VARCHAR(255) ,
+    phone     VARCHAR(50),
+    address   VARCHAR(255),
+    status    integer,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdBy VARCHAR(255) NULL,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updatedBy VARCHAR(255) NULL
+);
+
+CREATE TABLE Supplier_Products
+(
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    supplier_id INT NOT NULL,
+    product_id  INT NOT NULL,
+    price       DECIMAL(10,2) NULL,
+    status      integer,
+    createdAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdBy   VARCHAR(255) NULL,
+    updatedAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updatedBy   VARCHAR(255) NULL,
+    FOREIGN KEY (supplier_id) REFERENCES Suppliers (id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES Products (id) ON DELETE CASCADE
+);
+
