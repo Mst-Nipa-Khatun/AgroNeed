@@ -1,5 +1,6 @@
 package com.nipa.agroneed.service.Impl;
 
+import com.nipa.agroneed.config.UserPrincipal;
 import com.nipa.agroneed.dto.*;
 import com.nipa.agroneed.entity.ProductsEntity;
 import com.nipa.agroneed.entity.ShoppingCartEntity;
@@ -10,6 +11,7 @@ import com.nipa.agroneed.repository.UserRepository;
 import com.nipa.agroneed.service.ShoppingCartService;
 import com.nipa.agroneed.utils.ResponseBuilder;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -71,7 +73,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
         ShoppingCartEntity shoppingCart = shoppingCartRepository.findByUserIdAndProductIdAndStatus(incrementDecrementShoppingCartDto.getUserId(), incrementDecrementShoppingCartDto.getProductId(), 1);
 
-        if (shoppingCart != null) {
+            if (shoppingCart != null) {
             if (incrementDecrementShoppingCartDto.getIsIncrement()) {
                 if (shoppingCart.getQuantity() < stock) {
                     shoppingCart.setQuantity(shoppingCart.getQuantity() + 1);
@@ -94,8 +96,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public Response getAllShoppingCart() {
-        List<ShoppingCartProjection> shoppingCartEntities = shoppingCartRepository.findAllShoppingCart(1);
+    public Response getAllShoppingCart(Long userId) {
+         List<ShoppingCartProjection> shoppingCartEntities = shoppingCartRepository
+                .findAllShoppingCart(1,userId);
         if (!shoppingCartEntities.isEmpty()) {
             return ResponseBuilder.getSuccessResponse(HttpStatus.OK, shoppingCartEntities, "All shopping cart found");
         }
