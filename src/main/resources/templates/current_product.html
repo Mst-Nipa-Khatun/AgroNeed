@@ -101,8 +101,7 @@
             return;
         }
 
-        Ajax.get("/shoppingCart/getAll", null, null)
-            .then(response => {
+        Ajax.get("/shoppingCart/getAll", {userId: credential.content.userId}, null)            .then(response => {
                 console.log(response);
                 if (response.content == null) {
                     shoppingCartCountSelection.text(0)

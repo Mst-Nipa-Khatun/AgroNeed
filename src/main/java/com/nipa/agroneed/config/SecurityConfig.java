@@ -62,7 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/login","/", "/pages/**", "/error", "/register",
                                 "/webjars/**", "/css/**", "/images/**", "/favicon.ico",
                                 "/favicon.png", "/shared/**", "/webjars/AdminLTE/**",
-                                "/Categories/getAll","/users/create","/shoppingCart","/shoppingCart/getAll",
+                                "/Categories/getAll","/users/create","/shoppingCart","/**",
                                 "/orders/placeOrder","/orders/getAll","/viewAllOrders",
                                 "/orders/ordersUpdate","/application-static-image/**",
                                 "/suppliers/create","/suppliers/getAll","/addSupplier",
