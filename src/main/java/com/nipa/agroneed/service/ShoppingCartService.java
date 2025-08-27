@@ -8,7 +8,7 @@ import com.nipa.agroneed.dto.ShoppingCartDto;
 public interface ShoppingCartService {
     Response createShoppingCart(ShoppingCartDto shoppingCartDto);
     Response incrementDecrementShoppingCart(IncrementDecrementShoppingCartDto incrementDecrementShoppingCartDto);
-    Response getAllShoppingCart();
+    Response getAllShoppingCart(Long userId);
     Response removeRow(CrossCartDto crossCartDto);
     //Response removeRow(Long productId);
 }

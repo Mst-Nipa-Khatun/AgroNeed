@@ -12,11 +12,12 @@ import java.util.List;
 @Repository
 public interface ShoppingCartRepository extends JpaRepository<ShoppingCartEntity, Long> {
     ShoppingCartEntity findByUserIdAndProductIdAndStatus(Long userId, Long productId, Integer status);
+
     List<ShoppingCartEntity> findAllByUserIdAndStatus(Long userId, Integer status);
 
     @Query(value = "SELECT sc.id,p.name,sc.quantity,p.price,p.description,sc.product_id as productId\n" +
             "    from shopping_cart sc\n" +
-            "    join products p where sc.product_id=p.id and sc.status=:status",nativeQuery = true)
-    List<ShoppingCartProjection> findAllShoppingCart(@Param("status") Integer status);
+            "    join products p where sc.product_id=p.id and sc.status=:status and sc.user_id=:currentUserId", nativeQuery = true)
+    List<ShoppingCartProjection> findAllShoppingCart(@Param("status") Integer status, @Param("currentUserId") Long currentUserId);
 
 }

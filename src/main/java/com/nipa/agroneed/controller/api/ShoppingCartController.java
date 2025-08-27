@@ -28,8 +28,8 @@ public class ShoppingCartController {
         return shoppingCartService.incrementDecrementShoppingCart(incrementDecrementShoppingCartDto);
     }
     @GetMapping(UrlConstraint.ShoppingCart.GET_ALL)
-    public Response getAllShoppingCart() {
-        return shoppingCartService.getAllShoppingCart();
+    public Response getAllShoppingCart(@RequestParam("userId") Long userId) {
+        return shoppingCartService.getAllShoppingCart(userId);
     }
     @PostMapping(UrlConstraint.ShoppingCart.REMOVE_ROW)
     public Response removeRow(@RequestBody CrossCartDto crossCartDto){
