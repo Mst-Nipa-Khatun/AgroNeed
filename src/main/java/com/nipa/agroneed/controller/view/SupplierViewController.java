@@ -14,6 +14,7 @@ public class SupplierViewController {
     public SupplierViewController(SupplierService supplierService) {
         this.supplierService = supplierService;
     }
+
     @GetMapping("/addSupplier")
     public String addProducts() {
         return "addSupplier";
@@ -23,10 +24,23 @@ public class SupplierViewController {
     public String viewAllSuppliers() {
         return "viewAllSupplier";
     }
+
     @GetMapping("/supplierAllProducts")
-    public String supplierAllProducts(@RequestParam("supplierId")Long supplierId, Model model) {
+    public String supplierAllProducts(@RequestParam("supplierId") Long supplierId, Model model) {
         model.addAttribute("supplierId", supplierId);
         return "supplierProductsDetails";
+    }
+
+    /*
+
+        @GetMapping("/supplierSalesGenerate")
+        public String supplierSalesGenerate(@RequestParam("supplierId")Long supplierId, Model model) {
+            return "supplier_sales_generate";
+        }
+    */
+    @GetMapping("/supplierSalesGenerate")
+    public String supplierSalesGenerate() {
+        return "supplier_sales_generate";
     }
 
 }

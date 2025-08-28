@@ -66,7 +66,8 @@ public class SecurityConfig {
                                 "/orders/placeOrder","/orders/getAll","/viewAllOrders",
                                 "/orders/ordersUpdate","/application-static-image/**",
                                 "/suppliers/create","/suppliers/getAll","/addSupplier",
-                                "/viewAllSupplier","/supplierAllProducts",
+                                "/viewAllSupplier","/supplierAllProducts","/supplierSalesGenerate",
+                                "/api/comments/**",
                                 "/Products/create","/addProducts","/users","/users/getAll",
                                 "/Products/getProductsBySupplierId/**"//todo will need to authenticated dynamically
 

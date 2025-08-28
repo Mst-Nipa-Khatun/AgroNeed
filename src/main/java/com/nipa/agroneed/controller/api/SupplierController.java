@@ -3,10 +3,13 @@ package com.nipa.agroneed.controller.api;
 
 import com.nipa.agroneed.dto.Response;
 import com.nipa.agroneed.dto.SupplierDto;
+import com.nipa.agroneed.dto.SupplierSalesProjection;
 import com.nipa.agroneed.dto.UserDto;
 import com.nipa.agroneed.service.SupplierService;
 import com.nipa.agroneed.utils.UrlConstraint;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(UrlConstraint.Suppliers.ROOT)
@@ -27,19 +30,10 @@ public class SupplierController {
         return supplierService.getAllSuppliers();
     }
 
-    /*@PutMapping(UrlConstraint.Suppliers.UPDATE + "/{id}")
-    public Response updateSupplier(@PathVariable Long id, @RequestBody SupplierDto supplierDto) {
-        return supplierService.updateSupplier(id, supplierDto);
+    @GetMapping(UrlConstraint.Suppliers.SUPPLIER_SALES_GENERATE)
+    public Response supplierSalesGenerate() {
+        return supplierService.supplierSalesGenerate();
     }
 
-    @DeleteMapping(UrlConstraint.Suppliers.DELETE + "/{id}")
-    public Response deleteSupplier(@PathVariable Long id) {
-        return supplierService.deleteSupplier(id);
-    }
-
-    @GetMapping(UrlConstraint.Suppliers.GET + "/{id}")
-    public Response getSupplierById(@PathVariable Long id) {
-        return supplierService.getSupplierById(id);
-    }*/
 
 }

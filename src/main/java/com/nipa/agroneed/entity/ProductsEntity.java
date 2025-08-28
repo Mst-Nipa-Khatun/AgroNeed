@@ -1,5 +1,6 @@
 package com.nipa.agroneed.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -29,6 +30,7 @@ public class ProductsEntity extends BaseEntity {
     private String imageUrl;
 
     // Relation with SupplierProducts
+    @JsonIgnoreProperties("product") // prevent infinite recursion
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SupplierProductEntity> supplierProducts;
 

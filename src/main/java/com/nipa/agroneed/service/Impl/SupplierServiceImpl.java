@@ -2,6 +2,7 @@ package com.nipa.agroneed.service.Impl;
 
 import com.nipa.agroneed.dto.Response;
 import com.nipa.agroneed.dto.SupplierDto;
+import com.nipa.agroneed.dto.SupplierSalesProjection;
 import com.nipa.agroneed.entity.SupplierEntity;
 import com.nipa.agroneed.repository.SupplierRepository;
 import com.nipa.agroneed.service.SupplierService;
@@ -51,44 +52,14 @@ public class SupplierServiceImpl implements SupplierService {
         return ResponseBuilder.getFailResponse(HttpStatus.NOT_FOUND, null, "Supplier not found");
     }
 
-    /*@Override
-    public Response updateSupplier(Long id, SupplierDto supplierDto) {
-        Optional<SupplierEntity> supplierOpt = supplierRepository.findById(id);
-        if (supplierOpt.isEmpty()) {
-            return ResponseBuilder.getFailResponse(HttpStatus.NOT_FOUND, null, "Supplier not found");
+    @Override
+    public Response supplierSalesGenerate() {
+        List<SupplierSalesProjection> supplierSales=supplierRepository.supplierSalesGenerate();
+        if(!supplierSales.isEmpty()) {
+            return ResponseBuilder.getSuccessResponse(HttpStatus.OK, supplierSales, "Supplier sales generated");
         }
-
-        SupplierEntity supplier = supplierOpt.get();
-        supplier.setName(supplierDto.getName());
-        supplier.setEmail(supplierDto.getEmail());
-        supplier.setPhone(supplierDto.getPhone());
-        supplier.setAddress(supplierDto.getAddress());
-        supplier.setStatus(supplierDto.getStatus());
-
-        SupplierEntity updated = supplierRepository.save(supplier);
-        return ResponseBuilder.getSuccessResponse(HttpStatus.OK, updated, "Supplier updated successfully");
+        return ResponseBuilder.getFailResponse(HttpStatus.NOT_FOUND, null, "Supplier sales not found");
     }
 
-    @Override
-    public Response deleteSupplier(Long id) {
-        Optional<SupplierEntity> supplierOpt = supplierRepository.findById(id);
-        if (supplierOpt.isEmpty()) {
-            return ResponseBuilder.getFailResponse(HttpStatus.NOT_FOUND, null, "Supplier not found");
-        }
 
-        SupplierEntity supplier = supplierOpt.get();
-        supplier.setStatus(0); // soft delete
-        supplierRepository.save(supplier);
-
-        return ResponseBuilder.getSuccessResponse(HttpStatus.OK, null, "Supplier deleted successfully");
-    }
-
-    @Override
-    public Response getSupplierById(Long id) {
-        Optional<SupplierEntity> supplierOpt = supplierRepository.findById(id);
-        if (supplierOpt.isEmpty()) {
-            return ResponseBuilder.getFailResponse(HttpStatus.NOT_FOUND, null, "Supplier not found");
-        }
-        return ResponseBuilder.getSuccessResponse(HttpStatus.OK, supplierOpt.get(), "Supplier fetched successfully");
-    }*/
 }

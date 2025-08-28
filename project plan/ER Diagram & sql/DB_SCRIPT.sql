@@ -193,3 +193,20 @@ CREATE TABLE Supplier_Products
     FOREIGN KEY (product_id) REFERENCES Products (id) ON DELETE CASCADE
 );
 
+
+
+CREATE TABLE Product_Comments (
+                                  id INT PRIMARY KEY AUTO_INCREMENT,
+                                  user_id INT NOT NULL,
+                                  product_id INT NOT NULL,
+                                  comment TEXT NOT NULL,
+                                  status INT DEFAULT 1, -- e.g., 1=active, 0=deleted/hidden
+                                  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                  createdBy VARCHAR(255) NULL,
+                                  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                  updatedBy VARCHAR(255) NULL,
+                                  FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
+                                  FOREIGN KEY (product_id) REFERENCES Products(id) ON DELETE CASCADE
+);
+
+
