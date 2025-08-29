@@ -101,6 +101,12 @@ CREATE TABLE Orders (
                         FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
 );
 
+ALTER TABLE Orders
+    ADD COLUMN transaction_id VARCHAR(255),
+ADD COLUMN bank_tran_id VARCHAR(255),
+ADD COLUMN transaction_status INT,
+ADD COLUMN failed_transaction_reason VARCHAR(255);
+
 
 CREATE TABLE Order_Items (
                              id INT PRIMARY KEY AUTO_INCREMENT,

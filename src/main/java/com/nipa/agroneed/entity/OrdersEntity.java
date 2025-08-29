@@ -27,6 +27,18 @@ public class OrdersEntity extends BaseEntity {
     @Column(name = "payment_method")
     private  Integer paymentMethod;
 
+    @Column(name = "transaction_id")
+    private String transactionId;
+
+    @Column(name = "bank_tran_id")
+    private String bankTransactionId;
+
+    @Column(name = "transaction_status")
+    private Integer transactionStatus;
+
+    @Column(name = "failed_transaction_reason")
+    private String failedTransactionReason;
+
 
     //status in enum
 

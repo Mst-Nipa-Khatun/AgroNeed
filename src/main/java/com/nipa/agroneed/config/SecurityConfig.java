@@ -59,16 +59,17 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(myAuthenticationEntryPoint)) //exception handle kora hoyeche,when unauthorised user can access in API then show the message 401,403.here we create a custom class where we decelare
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))//In this application we use jwt thats why no need to store any session.here stateless means every request can be checked newly,don't create any session.
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login","/", "/pages/**", "/error", "/register",
+                        .requestMatchers("/login", "/", "/pages/**", "/error", "/register",
                                 "/webjars/**", "/css/**", "/images/**", "/favicon.ico",
                                 "/favicon.png", "/shared/**", "/webjars/AdminLTE/**",
-                                "/Categories/getAll","/users/create","/shoppingCart","/**",
-                                "/orders/placeOrder","/orders/getAll","/viewAllOrders",
-                                "/orders/ordersUpdate","/application-static-image/**",
-                                "/suppliers/create","/suppliers/getAll","/addSupplier",
-                                "/viewAllSupplier","/supplierAllProducts","/supplierSalesGenerate",
+                                "/Categories/getAll", "/users/create", "/shoppingCart", "/**",
+                                "/orders/placeOrder", "/orders/getAll", "/viewAllOrders",
+                                "/orders/ordersUpdate", "/application-static-image/**",
+                                "/suppliers/create", "/suppliers/getAll", "/addSupplier",
+                                "/viewAllSupplier", "/supplierAllProducts", "/supplierSalesGenerate",
                                 "/api/comments/**",
-                                "/Products/create","/addProducts","/users","/users/getAll",
+                                "/ssl-commerz/**",
+                                "/Products/create", "/addProducts", "/users", "/users/getAll",
                                 "/Products/getProductsBySupplierId/**"//todo will need to authenticated dynamically
 
                         ).permitAll()
@@ -81,24 +82,25 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        // ✅ Allow frontend domains only (DO NOT USE "*")
-        configuration.setAllowedOrigins(List.of("http://localhost:" + port, "https://yourfrontend.com"));
-
-        // ✅ Define HTTP methods allowed
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
-        // ✅ Allow specific headers (Authorization needed for JWT)
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-
-        // ✅ Allow credentials (cookies, Authorization headers)
-        configuration.setAllowCredentials(true);
-
-        // ✅ Register the CORS policy for all endpoints
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+
+        // 1️⃣ Frontend AJAX requests
+        CorsConfiguration frontendCors = new CorsConfiguration();
+        frontendCors.setAllowedOrigins(List.of("http://localhost:" + port, "https://yourfrontend.com"));
+        frontendCors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        frontendCors.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        frontendCors.setAllowCredentials(true);
+        source.registerCorsConfiguration("/ssl-commerz/initiate-payment", frontendCors);
+
+        // 2️⃣ SSLCommerz server POSTs
+        CorsConfiguration sslCommerzCors = new CorsConfiguration();
+        sslCommerzCors.setAllowedOrigins(List.of("*")); // allow all origins
+        sslCommerzCors.setAllowedMethods(List.of("POST", "OPTIONS"));
+        sslCommerzCors.setAllowedHeaders(List.of("*"));
+        sslCommerzCors.setAllowCredentials(false);
+        source.registerCorsConfiguration("/ssl-commerz/payment/**", sslCommerzCors);
 
         return source;
     }
+
 }
