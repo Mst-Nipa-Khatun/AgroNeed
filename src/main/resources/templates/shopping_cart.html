@@ -222,15 +222,18 @@
                     if(response.statusCode===200){
                         console.log(response.message);
 
-                       /* showSuccessToast(response.message);
-                        setTimeout(function () {
-                            window.location.href = "/pages/success-order-conformation"
-                        }, 1000)*/
-                        let responseData = response.content;
-                        if (responseData.gatewayPageURL) {
-                            window.location.href = responseData.gatewayPageURL;
-                        } else {
-                            showWarningToast('Payment initialization failed: ' + responseData.failedreason);
+                        if (parseInt(paymentMethod)!==2){
+                            showSuccessToast(response.message);
+                               setTimeout(function () {
+                                   window.location.href = "/pages/success-order-conformation"
+                               }, 1000)
+                        }else {
+                            let responseData = response.content;
+                            if (responseData.gatewayPageURL) {
+                                window.location.href = responseData.gatewayPageURL;
+                            } else {
+                                showWarningToast('Payment initialization failed: ' + responseData.failedreason);
+                            }
                         }
                     }else {
                         showWarningToast(response.message);

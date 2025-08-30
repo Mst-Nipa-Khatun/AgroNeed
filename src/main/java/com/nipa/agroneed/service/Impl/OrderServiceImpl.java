@@ -66,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
                 product.setStock(product.getStock() - cart.getQuantity());
                 productsRepository.save(product);
             }
-            cart.setStatus(11);//For make, it received in shopping cart
+            cart.setStatus(placeOrderDto.getPaymentMethod() != 2 ? 4 : 11);//For make, it received in shopping cart
         }
         List<ShoppingCartEntity> updatedCarts = shoppingCartRepository.saveAll(carts); //akhon shooping cart e pick kora gulo 4 status
 
@@ -75,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
         order.setAddress(placeOrderDto.getAddress());
         order.setPhoneNumber(placeOrderDto.getPhoneNumber());
         order.setPaymentMethod(placeOrderDto.getPaymentMethod());
-        order.setStatus(11);
+        order.setStatus(placeOrderDto.getPaymentMethod() != 2 ? 1 : 11);
         order.setTotalPrice(totalPrice);
         order.setNumberOfProducts(totalNumberOfProducts);
         OrdersEntity savedOrder = orderRepository.save(order);
@@ -89,12 +89,16 @@ public class OrderServiceImpl implements OrderService {
                 orderItem.setProductId(product.getId());
                 orderItem.setPrice(product.getPrice());
                 orderItem.setQuantity(shoppingCartart.getQuantity());
-                orderItem.setStatus(11);
+                orderItem.setStatus(placeOrderDto.getPaymentMethod() != 2 ? 1 : 11);
                 orderItems.add(orderItem);
             }
         }
         orderItemsRepository.saveAll(orderItems);
 
+        if (placeOrderDto.getPaymentMethod() != 2) {
+            /*CASH ON DELIVERY*/
+            return ResponseBuilder.getSuccessResponse(HttpStatus.OK, savedOrder, "Order placed successfully.");
+        }
 
         /*PAYMENT REQUEST*/
         PaymentRequest paymentRequest = new PaymentRequest();
